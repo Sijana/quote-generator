@@ -3,6 +3,8 @@ import torch
 import random
 import sys
 import os
+import os
+import requests
 
 # Import the quote generator (assuming it's in the same directory)
 from multi_character_quote_generator import MultiCharacterQuoteGenerator
@@ -70,14 +72,34 @@ CHARACTERS = [
 
 def load_model():
     """
-    Load the pre-trained model
+    Load the pre-trained model from a GitHub release
     """
     try:
+        # GitHub release URL for the model file
+        github_url = 'https://github.com/Sijana/quote-generator/releases/download/v1.0.0/multi-quote_generator.pth'
         model_path = 'model/multi-quote_generator.pth'
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+
+        # Download the model file if it doesn't already exist
+        if not os.path.exists(model_path):
+            with st.spinner("Downloading model..."):
+                response = requests.get(github_url, stream=True)
+                if response.status_code == 200:
+                    with open(model_path, 'wb') as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            f.write(chunk)
+                else:
+                    st.error(f"Failed to download the model. Status code: {response.status_code}")
+                    return None
+
+        # Load the model
         generator = MultiCharacterQuoteGenerator()
-        generator.load_model('multi-quote_generator.pth')
+        generator.load_model(model_path)
         
         return generator
+
     except Exception as e:
         st.error(f"Error loading model: {e}")
         return None
