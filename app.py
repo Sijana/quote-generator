@@ -75,7 +75,7 @@ def load_model():
     try:
         model_path = 'model/multi-quote_generator.pth'
         generator = MultiCharacterQuoteGenerator()
-        generator.load_model('model/multi-quote_generator.pth')
+        generator.load_model('multi-quote_generator.pth')
         
         return generator
     except Exception as e:
